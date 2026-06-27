@@ -34,7 +34,7 @@ graph TD
     TGCloud[☁️ Telegram Cloud Servers] :::telegram
     BotEngine[🤖 telegram_bot.py Server Node] :::engine
     
-    subgraph Ingestion Router & Worker Threading Matrix
+    subgraph "Ingestion Router & Worker Threading Matrix"
         BotEngine -->|Parser Check| IntentRouter{Intent Router}
         IntentRouter -->|1. Delete Intent| DeleteHandler[🗑️ Deletion Purge Filter]
         IntentRouter -->|2. Query Intent| RAGEngine[🧠 ChromaDB Vector Lookup]
@@ -44,14 +44,14 @@ graph TD
         DuplicateCheck -->|Unique Asset URL| ThreadSpawn[🧵 Background Worker Thread Spawned]
     end
     
-    subgraph Multi-Modal Ingestion Pipeline
+    subgraph "Multi-Modal Ingestion Pipeline"
         ThreadSpawn -->|Async Handshake| Pipeline[pipeline.py Engine] :::pipeline
         Pipeline -->|🍪 Session cookies.txt Auth| YTDLP[🎬 yt-dlp Video/Audio Splitter]
         YTDLP -->|Audio Track .mp3| Whisper[🗣️ OpenAI Whisper AI: Speech-to-Text]
         YTDLP -->|Video Frames .mp4| EasyOCR[👁️ EasyOCR Engine: Computer Vision Frame Scan]
     end
 
-    subgraph Dual-Topology Hybrid Database Sync
+    subgraph "Dual-Topology Hybrid Database Sync"
         Whisper -->|Synthesized Raw Metadata text| ContextCompiler[🧩 Context Compiler Matrix]
         EasyOCR -->|Extracted Text Data layers| ContextCompiler
         
@@ -59,14 +59,14 @@ graph TD
         ContextCompiler -->|Structured Analytical Summary JSON| Notion[📝 Notion Workspace Cloud Database] :::database
     end
     
-    subgraph Edge Inference Execution
+    subgraph "Edge Inference Execution"
         RAGEngine -->|Extracted Relevant Context Coordinates| DistanceShield{Distance Threshold Shield}
         DistanceShield -->|Score > 1.3: Insufficient Context| ShieldHalt[🤷‍♂️ Irrelevant Query Block Dispatch]
         DistanceShield -->|Score <= 1.3: Safe Node Context| Ollama[🦙 Ollama: llama3.2 Inference Engine]
         Ollama -->|Refined Plain-English Executive Answer| TargetResponse[📱 Dispatched to Phone Screen]
     end
 
-    subgraph UI Control Center Layer
+    subgraph "UI Control Center Layer"
         Chroma -->|Live Local Storage Coordinates Read| Streamlit[📊 app.py Streamlit UI Center] :::mobile
     end
 
