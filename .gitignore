@@ -1,0 +1,13 @@
+# Secrets and Credentials
+.env
+cookies.txt
+
+# Local Cache and Temp Media Files
+__pycache__/
+*.mp3
+*.mp4
+
+# Local Storage Database
+chroma_db/
+
+reelvault.log

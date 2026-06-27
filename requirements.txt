@@ -1,0 +1,9 @@
+pyTelegramBotAPI==4.22.1
+chromadb==0.5.3
+ollama==0.2.1
+yt-dlp==2025.2.19
+openai-whisper==20231117
+easyocr==1.7.1
+opencv-python==4.9.0.80
+streamlit==1.35.0
+python-dotenv==1.0.1
