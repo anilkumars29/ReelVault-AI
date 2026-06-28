@@ -8,6 +8,7 @@ import ollama
 import requests
 import chromadb
 import logging
+import time
 from dotenv import load_dotenv
 
 # 🔐 Load hidden credentials from the .env file
@@ -16,6 +17,8 @@ NOTION_TOKEN = os.getenv("NOTION_TOKEN")
 DATABASE_ID = os.getenv("DATABASE_ID")
 CHROMA_PATH = "./chroma_db"
 LLM_MODEL = "llama3.2"  # 🏎️ Harmonized to the lightweight, fast model
+
+global_reader = easyocr.Reader(['en'], gpu=False)
 
 def download_assets(url):
     print("\n🎬 [1/5] Extracting video and audio tracks via yt-dlp...")
@@ -56,30 +59,47 @@ def transcribe_audio(audio_path):
 
 def extract_video_ocr(video_path):
     print("👁️ [3/5] Sampling frames every 2 seconds with optimized CPU preprocessing...")
-    reader = easyocr.Reader(['en'], gpu=False)
+    
     cap = cv2.VideoCapture(video_path)
     fps = cap.get(cv2.CAP_PROP_FPS) or 30
     frame_interval = int(fps * 2)
     
     ocr_set = set()
     frame_count = 0
+    
     while cap.isOpened():
         ret, frame = cap.read()
-        if not ret: break
+        if not ret: 
+            break
+            
         if frame_count % frame_interval == 0:
             gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             height, width = gray_frame.shape
             target_width = 640
+            
             if width > target_width:
                 scale_ratio = target_width / width
                 target_height = int(height * scale_ratio)
                 processed_frame = cv2.resize(gray_frame, (target_width, target_height), interpolation=cv2.INTER_AREA)
             else:
                 processed_frame = gray_frame
-            lines = reader.readtext(processed_frame, detail=0)
+            
+            # Use the globally instantiated reader model instance to run the inference
+            lines = global_reader.readtext(processed_frame, detail=0)
+            
+            # 🛡️ NETWORK CONCURRENCY SHIELD
+            # Yields execution control for a tiny split-second to your laptop's CPU.
+            # This grants the primary thread handling your Telegram infinity polling loop 
+            # the necessary computing cycles to send health heartbeats back to the Telegram cloud,
+            # preventing 'RemoteDisconnected' socket drops during heavy processing tasks.
+            time.sleep(0.05)
+            
             for line in lines:
-                if len(line.strip()) > 3: ocr_set.add(line.strip())
+                if len(line.strip()) > 3: 
+                    ocr_set.add(line.strip())
+                    
         frame_count += 1
+        
     cap.release()
     return " | ".join(ocr_set)
 

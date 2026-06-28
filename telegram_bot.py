@@ -222,4 +222,20 @@ def handle_message(message):
 
 
 # --- 🚀 ENGINE START ---
-bot.infinity_polling()
+# --- 🚀 ENGINE START WITH NETWORK RESILIENCE SHIELDS ---
+if __name__ == "__main__":
+    import time
+    
+    logging.info("ReelVault Engine Active! Entering polling loop...")
+    
+    while True:
+        try:
+            # timeout: Socket read timeout (forces a refresh before things hang)
+            # long_polling_timeout: Server-side long poll wait threshold
+            bot.infinity_polling(timeout=30, long_polling_timeout=15)
+            
+        except Exception as polling_err:
+            logging.error(f"Network polling socket interrupted: {str(polling_err)}")
+            logging.info("Resource starvation or timeout detected. Cooling down for 5 seconds before self-healing reconnect...")
+            time.sleep(5)
+            logging.info("Re-establishing active long-polling channel to Telegram Cloud...")
